@@ -58,8 +58,8 @@
   <!-- ログイン -->
   <section id="loginView" class="card hidden">
     <div id="loginMsg" class="msg"></div>
-    <label class="t" for="email">メールアドレス</label>
-    <input id="email" type="email" autocomplete="username" inputmode="email">
+    <label class="t" for="email">ID</label>
+    <input id="email" type="text" autocomplete="username" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="例：kanno">
     <label class="t" for="password">パスワード</label>
     <input id="password" type="password" autocomplete="current-password">
     <div style="height:18px"></div>
@@ -151,9 +151,11 @@ function esc(s) { return (s ?? '').toString().replace(/[&<>"']/g, c => ({'&':'&a
 $('loginBtn').onclick = async () => {
   clearMsg($('loginMsg'));
   $('loginBtn').disabled = true;
-  const { error } = await sb.auth.signInWithPassword({ email: $('email').value.trim(), password: $('password').value });
+  const id = $('email').value.trim().toLowerCase();
+  const email = id.includes('@') ? id : id + '@id.yorisou.local';
+  const { error } = await sb.auth.signInWithPassword({ email, password: $('password').value });
   $('loginBtn').disabled = false;
-  if (error) msg($('loginMsg'), 'ログインできませんでした。メールアドレスとパスワードを確認してください。', false);
+  if (error) msg($('loginMsg'), 'ログインできませんでした。IDとパスワードを確認してください。', false);
 };
 $('logoutBtn').onclick = async () => { await sb.auth.signOut(); };
 
