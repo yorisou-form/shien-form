@@ -96,9 +96,7 @@
       <div id="naiyouChips" class="chips"></div>
       <input id="naiyou" type="text" placeholder="選ぶか、自由に入力">
 
-      <label class="t" for="tanto">担当者</label>
-      <div id="tantoChips" class="chips"></div>
-      <input id="tanto" type="text" placeholder="選ぶか、自由に入力">
+      <div style="display:none"><div id="tantoChips" class="chips"></div><input id="tanto" type="text"></div>
 
       <label class="t">対応区分</label>
       <div id="kubunChecks" class="checks"></div>
@@ -170,6 +168,7 @@ async function start(session) {
   if (opts.error || !opts.data) { started = false; show('noAccessView'); return; }
   const st = await sb.from('staff').select('display_name').maybeSingle();
   staffName = st.data?.display_name || '';
+  $('logoutBtn').textContent = (staffName ? staffName + 'さん　' : '') + 'ログアウト';
   try {
     buildOptions(opts.data);
     await loadRiyousha();
@@ -257,7 +256,7 @@ function resetForm() {
   $('kaishi').value = ''; $('shuryo').value = ''; calcJikan();
   $('rClear').onclick(); $('rSearch').blur();
   $('naiyou').value = ''; $('naiyou').dispatchEvent(new Event('input'));
-  $('tanto').value = safeStore.getItem('shien_tanto') || staffName || '';
+  $('tanto').value = staffName || '';
   $('tanto').dispatchEvent(new Event('input'));
   document.querySelectorAll('#kubunChecks input').forEach(c => c.checked = false);
   $('kiroku').value = '';
@@ -282,7 +281,6 @@ $('saveBtn').onclick = async () => {
   const { data, error } = await sb.from('shien_kiroku').insert(row).select('kintone_record_id').single();
   $('saveBtn').disabled = false;
   if (error) return msg($('formMsg'), '保存できませんでした: ' + error.message, false);
-  if (row.tanto) safeStore.setItem('shien_tanto', row.tanto);
   const who = row.riyousha_mei;
   resetForm();
   msg($('formMsg'), `保存しました（${who}さん、記録No.${data.kintone_record_id}）`, true);
